@@ -3,15 +3,13 @@ package ca.maibach.pickleboat;
 import android.app.Application;
 import android.content.Intent;
 
-import com.firebase.client.Firebase;
-
 import ca.maibach.pickleboat.authentication.PickleboatService;
 
 
 /**
  * Created by keith on 23/03/15.
  */
-public class PickleBoatApplication extends Application{
+public class PickleBoatApplication extends Application {
 
 
     /**
@@ -33,7 +31,6 @@ public class PickleBoatApplication extends Application{
 
         startService();
     }
-
 
 
 }

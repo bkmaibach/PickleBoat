@@ -1,6 +1,5 @@
 package ca.maibach.pickleboat;
 
-import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -12,12 +11,11 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.firebase.client.Firebase;
-import com.google.android.gms.maps.model.LatLng;
 
 import ca.maibach.pickleboat.data.PickleContract;
-import ca.maibach.pickleboat.data.PickleDbHelper;
 import ca.maibach.pickleboat.data.PickleContract.BoatEntry;
 import ca.maibach.pickleboat.data.PickleContract.StopEntry;
+import ca.maibach.pickleboat.data.PickleDbHelper;
 
 /**
  * Created by keith on 28/02/15.
@@ -25,34 +23,28 @@ import ca.maibach.pickleboat.data.PickleContract.StopEntry;
 public class PickleProvider extends ContentProvider {
 
     public static final String AUTHORITY = Utility.CONTENT_AUTHORITY;
-
-    // Defines a set of uris allowed with this content provider
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
-
-    private static String TAG = "PickleBoat: " + "CaptainProvider";
-
     private static final String zonePath = "zones";
-
     private static final String boatPath = PickleContract.PATH_BOAT;
-
     private static final String stopPath = PickleContract.PATH_STOP;
-
-
-    private PickleDbHelper mOpenHelper;
-
-    private Firebase mFirebase;
-
     private static final int BOAT = 1;
     private static final int BOAT_BY_ZONE = 2;
     private static final int BOAT_BY_ZONE_STOP = 3;
-
     private static final int STOP = 5;
     private static final int STOP_BY_ZONE = 6;
     private static final int STOP_ID = 7;
-
+    // Defines a set of uris allowed with this content provider
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
     private static final SQLiteQueryBuilder sBoatByNextStopQueryBuilder;
+    private static final String sBoatZoneSelection =
+            StopEntry.TABLE_NAME + "." + BoatEntry.KEY_ZONE_SETTING + " = ? ";
+    private static final String sBoatZoneStopSelection =
+            StopEntry.TABLE_NAME + "." + BoatEntry.KEY_ZONE_SETTING + " = ? " + "AND" +
+                    StopEntry.TABLE_NAME + "." + StopEntry._ID + " = ? ";
+    private static final String sStopZoneSelection =
+            StopEntry.TABLE_NAME + "." + StopEntry.KEY_ZONE_SETTING;
+    private static String TAG = "PickleBoat: " + "CaptainProvider";
 
-    static{
+    static {
         sBoatByNextStopQueryBuilder = new SQLiteQueryBuilder();
         sBoatByNextStopQueryBuilder.setTables(
                 BoatEntry.TABLE_NAME + " INNER JOIN " +
@@ -63,7 +55,8 @@ public class PickleProvider extends ContentProvider {
                         "." + StopEntry._ID);
     }
 
-
+    private PickleDbHelper mOpenHelper;
+    private Firebase mFirebase;
 
     private static UriMatcher buildUriMatcher() {
 
@@ -79,8 +72,14 @@ public class PickleProvider extends ContentProvider {
 
         return uriMatcher;
     }
-    
-    
+
+    public static String getZoneSettingFromUri(Uri uri) {
+        return getZoneSettingFromUri(uri);
+    }
+
+    public static String getStopParameterFromUri(Uri uri) {
+        return uri.getQueryParameter(BoatEntry.KEY_NEXT_STOP);
+    }
 
     @Override
     public String getType(Uri uri) {
@@ -114,7 +113,6 @@ public class PickleProvider extends ContentProvider {
         }
     }
 
-
     @Override
     public boolean onCreate() {
         ////Log.v(TAG, "onCreate");
@@ -123,22 +121,8 @@ public class PickleProvider extends ContentProvider {
         mOpenHelper.onUpgrade(mOpenHelper.getWritableDatabase(), 2, 3);
 
 
-
-            return true;
+        return true;
     }
-
-
-
-    private static final String sBoatZoneSelection =
-            StopEntry.TABLE_NAME + "." + BoatEntry.KEY_ZONE_SETTING + " = ? ";
-
-    private static final String sBoatZoneStopSelection =
-            StopEntry.TABLE_NAME + "." + BoatEntry.KEY_ZONE_SETTING + " = ? " + "AND" +
-                    StopEntry.TABLE_NAME + "." + StopEntry._ID + " = ? ";
-
-
-    private static final String sStopZoneSelection =
-            StopEntry.TABLE_NAME + "." + StopEntry.KEY_ZONE_SETTING;
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
@@ -173,7 +157,7 @@ public class PickleProvider extends ContentProvider {
                 zoneSetting = getZoneSettingFromUri(uri);
 
                 dbSelection = sBoatZoneSelection;
-                dbArgs = new String[] {zoneSetting};
+                dbArgs = new String[]{zoneSetting};
 
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         BoatEntry.TABLE_NAME,
@@ -192,7 +176,7 @@ public class PickleProvider extends ContentProvider {
                 nextStop = getStopParameterFromUri(uri);
 
                 dbSelection = sBoatZoneStopSelection;
-                dbArgs = new String[] {zoneSetting, nextStop};
+                dbArgs = new String[]{zoneSetting, nextStop};
 
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         BoatEntry.TABLE_NAME,
@@ -209,7 +193,7 @@ public class PickleProvider extends ContentProvider {
                 zoneSetting = getZoneSettingFromUri(uri);
 
                 dbSelection = sStopZoneSelection;
-                dbArgs = new String[] {zoneSetting};
+                dbArgs = new String[]{zoneSetting};
 
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         BoatEntry.TABLE_NAME,
@@ -221,8 +205,7 @@ public class PickleProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-            
-            
+
 
             case STOP_ID:
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -336,12 +319,11 @@ public class PickleProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        if(0 != rowsUpdated) {
+        if (0 != rowsUpdated) {
             getContext().getContentResolver().notifyChange(uri, null, false);
         }
         return rowsUpdated;
     }
-
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
@@ -377,15 +359,6 @@ public class PickleProvider extends ContentProvider {
         }
 
     }
-
-    public static String getZoneSettingFromUri(Uri uri) {
-        return getZoneSettingFromUri(uri);
-    }
-
-    public static String getStopParameterFromUri(Uri uri) {
-        return uri.getQueryParameter(BoatEntry.KEY_NEXT_STOP);
-    }
-
 
     /**
      * Implement this to support canonicalization of URIs that refer to your

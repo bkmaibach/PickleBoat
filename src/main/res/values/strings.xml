@@ -1,4 +1,4 @@
-<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
+<resources>
     <string name="app_name">PickleBoat</string>
     <string name="hello_world">Hello world!</string>
     <string name="login_label">Login</string>
@@ -63,7 +63,6 @@
     <string name="msg_session_expired">Your pickleboat session has expired</string>
 
     <string name="firebase_url">https://h2otaxi.firebaseio.com/</string>
-
 
 
 </resources>

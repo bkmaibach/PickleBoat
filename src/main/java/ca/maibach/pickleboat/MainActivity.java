@@ -2,9 +2,8 @@ package ca.maibach.pickleboat;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
-
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,9 +18,8 @@ import ca.maibach.pickleboat.googlehelpers.PlaceSearchActivity;
 
 public class MainActivity extends PlaceSearchActivity implements
         StopFragment.StopCallbacks,
-        PickupCallbacks{
+        PickupCallbacks {
     private static String TAG = "PickleBoat: " + "MainActivity";
-
 
 
     //Member Variables
@@ -46,9 +44,9 @@ public class MainActivity extends PlaceSearchActivity implements
 
         FragmentManager fm = getSupportFragmentManager();
 
-        mMapFragment = (PickleMapFragment)fm.findFragmentById(R.id.pickup_fragment);
+        mMapFragment = (PickleMapFragment) fm.findFragmentById(R.id.pickup_fragment);
 
-        mDriverFragment = (StopFragment)fm.findFragmentById(R.id.stop_fragment);
+        mDriverFragment = (StopFragment) fm.findFragmentById(R.id.stop_fragment);
 
         mDriverFragment.setStopCallbacks(this);
         mMapFragment.setPickupCallbacks(this);
@@ -110,7 +108,7 @@ public class MainActivity extends PlaceSearchActivity implements
 
     @Override
     public void onInitialized(LatLng position, String description) {
-        if(mPickup == null){
+        if (mPickup == null) {
             mPickup = position;
         }
 
@@ -133,7 +131,6 @@ public class MainActivity extends PlaceSearchActivity implements
         getSupportLoaderManager().initLoader(StopFragment.STOP_LOADER_ID, args, mDriverFragment);
         mMapFragment.previewPickup(position, setDescription);
     }
-
 
 
     @Override

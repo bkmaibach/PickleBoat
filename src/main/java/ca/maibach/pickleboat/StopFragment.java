@@ -33,13 +33,10 @@ public class StopFragment extends Fragment implements
         Preference.OnPreferenceChangeListener,
         AdapterView.OnItemSelectedListener,
         LoaderManager.LoaderCallbacks<Cursor> {
-    private static String TAG = "PickleBoat: " + "CaptainFragment";
-
     public static final int STOP_LOADER_ID = 3;
-
     public static final String POSITION_PARAM_KEY = "zone_key";
     public static final String SPINNER_SELECTION_KEY = "selection_key";
-
+    private static String TAG = "PickleBoat: " + "CaptainFragment";
     private Spinner mSpinner;
     private String selectionKey;
     private StopAdapter mStopAdapter;
@@ -88,9 +85,9 @@ public class StopFragment extends Fragment implements
         selectionMap = new HashMap<String, Integer>();
 
 
-        while(c.moveToNext()) {
+        while (c.moveToNext()) {
 
-            String sKey =  c.getString(StopEntry.COL_NUM_ID);
+            String sKey = c.getString(StopEntry.COL_NUM_ID);
             selectionMap.put(sKey, c.getPosition());
 
             pos = Utility.stringParamToLatLng(c.getString(StopEntry.COL_NUM_LATLNG));
@@ -110,11 +107,11 @@ public class StopFragment extends Fragment implements
 
         mStopAdapter.changeCursor(c);
 
-        if(c.getCount() != 0){
-            if(selectionKey == null) {
+        if (c.getCount() != 0) {
+            if (selectionKey == null) {
                 selectionKey = bestSelectionKey;
                 mSpinner.setSelection(selectionMap.get(selectionKey));
-            }else{
+            } else {
                 mSpinner.setSelection(selectionMap.get(selectionKey));
             }
         }
@@ -126,7 +123,7 @@ public class StopFragment extends Fragment implements
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         CursorLoader cLoader = null;
-        if(id == STOP_LOADER_ID && args != null) {
+        if (id == STOP_LOADER_ID && args != null) {
 
             mLatLng = Utility.stringParamToLatLng(args.getString(POSITION_PARAM_KEY));
 
@@ -151,8 +148,6 @@ public class StopFragment extends Fragment implements
     }
 
 
-
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         ////Log.d(TAG, "onLoaderReset: id = " + Integer.toString(loader.getId()));
@@ -173,14 +168,13 @@ public class StopFragment extends Fragment implements
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
 
             getLoaderManager().initLoader(STOP_LOADER_ID, savedInstanceState, this);
             mSpinner.setSelection(savedInstanceState.getInt(SPINNER_SELECTION_KEY));
         }
 
     }
-
 
 
     @Override
@@ -212,7 +206,7 @@ public class StopFragment extends Fragment implements
                 getView().findViewById(R.id.progressbar).setVisibility(View.INVISIBLE);
             }
         });
-        if(mStopCallbacks != null){
+        if (mStopCallbacks != null) {
             mStopCallbacks.onStopSelected(c, position);
         }
 
@@ -223,15 +217,15 @@ public class StopFragment extends Fragment implements
 
     }
 
-    public interface StopCallbacks {
-        public void onStopsLoaded(Cursor c);
-
-        public void onStopSelected(Cursor c, int position);
-    }
-
-    public void setStopCallbacks(StopCallbacks listener){
+    public void setStopCallbacks(StopCallbacks listener) {
         mStopCallbacks = listener;
 
+    }
+
+    public interface StopCallbacks {
+        void onStopsLoaded(Cursor c);
+
+        void onStopSelected(Cursor c, int position);
     }
 
 }

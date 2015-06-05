@@ -18,18 +18,14 @@ import ca.maibach.pickleboat.Utility;
  * A bound Service that instantiates the authenticator
  * when started.
  */
-public class PickleboatService extends Service{
-    private String TAG = "PickleBoat: " + "AuthenticatorService";
-
+public class PickleboatService extends Service {
+    public static final String ACTION_INIT_FIREBASE = "init_firebase";
     private static final Object lock = new Object();
-
+    private static final String zone_path = "zones";
+    private String TAG = "PickleBoat: " + "AuthenticatorService";
     // Instance field that stores the authenticator object
     private Authenticator mAuthenticator;
     private Firebase mFirebase;
-
-    public static final String ACTION_INIT_FIREBASE = "init_firebase";
-
-    private static final String zone_path = "zones";
 
 
 
@@ -38,7 +34,7 @@ public class PickleboatService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(intent.getAction() == ACTION_INIT_FIREBASE){
+        if (intent.getAction() == ACTION_INIT_FIREBASE) {
 
 
             Firebase ref = new Firebase(builtUri.toString());
@@ -52,12 +48,12 @@ public class PickleboatService extends Service{
         //Log.d(TAG, "onCreate");
 
 
-        synchronized (lock){
-            if (mAuthenticator == null){
+        synchronized (lock) {
+            if (mAuthenticator == null) {
                 mAuthenticator = new Authenticator(this);
 
             }
-            if(mFirebase == null){
+            if (mFirebase == null) {
                 final String zone_setting = Utility.getZoneSetting(this);
 
                 Uri builtUri = Uri.parse(Utility.FIREBASE_BASE_URL).buildUpon()

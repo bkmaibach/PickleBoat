@@ -21,8 +21,7 @@ public class User implements Serializable {
     private String gravatarId;
     private String avatarUrl;
 
-    public String getTokenType()
-    {
+    public String getTokenType() {
         return authData.getToken();
     }
 
@@ -58,7 +57,9 @@ public class User implements Serializable {
         this.phone = phone;
     }
 
-    public String getObjectId() { return objectId; }
+    public String getObjectId() {
+        return objectId;
+    }
 
     public void setObjectId(String objectId) {
         this.objectId = objectId;
@@ -68,7 +69,9 @@ public class User implements Serializable {
         return authData;
     }
 
-    public void setAuthData(AuthData authData) { this.authData = authData; }
+    public void setAuthData(AuthData authData) {
+        this.authData = authData;
+    }
 
     public String getGravatarId() {
         return gravatarId;

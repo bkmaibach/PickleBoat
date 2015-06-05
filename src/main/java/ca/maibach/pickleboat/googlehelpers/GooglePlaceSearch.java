@@ -54,14 +54,11 @@ import javax.xml.parsers.ParserConfigurationException;
 @SuppressLint("NewApi")
 public class GooglePlaceSearch {
 
-    private String API_KEY;
-
     public final static String STATUS_OK = "OK";
     public final static String STATUS_ZERO_RESULTS = "ZERO_RESULTS";
     public final static String STATUS_OVER_QUERY_LIMIT = "OVER_QUERY_LIMIT";
     public final static String STATUS_REQUEST_DENIED = "REQUEST_DENIED";
     public final static String STATUS_INVALID_REQUEST = "INVALID_REQUEST ";
-
     public final static String PLACE_NAME = "Name";
     public final static String PLACE_ADDRESS = "Address";
     public final static String PLACE_LATITUDE = "Latitude";
@@ -70,7 +67,7 @@ public class GooglePlaceSearch {
     public final static String PLACE_OPENNOW = "OpenNow";
     public final static String PLACE_PHOTO = "Photo";
     public final static String PLACE_PHONENUMBER = "PhoneNumber";
-
+    private String API_KEY;
     private boolean isLogging = false;
 
     private OnPlaceResponseListener mPlaceResponseListener = null;
@@ -86,7 +83,6 @@ public class GooglePlaceSearch {
     public void setLogging(boolean state) {
         isLogging = state;
     }
-
 
 
     /**
@@ -117,7 +113,7 @@ public class GooglePlaceSearch {
             , String type, String language, String keyword) {
         String url = "https://maps.googleapis.com/maps/api/place/search/xml?"
                 + "location=" + latitude + "," + longitude + "&radius=" + radius
-                + "&key=" + API_KEY ;
+                + "&key=" + API_KEY;
         if (!type.equals(""))
             url += "&types=" + type.toLowerCase(Locale.getDefault());
         if (!keyword.equals(""))
@@ -126,7 +122,7 @@ public class GooglePlaceSearch {
             url += "&language=" + language.toLowerCase(Locale.getDefault());
         if (isLogging)
             Log.i("GooglePlace", "URL : " + url);
-        new RequestTask().execute(new String[]{url});
+        new RequestTask().execute(url);
     }
 
     /**
@@ -158,7 +154,7 @@ public class GooglePlaceSearch {
     private void getTextSearchDocument(String keyword, String type, boolean opennow
             , String language, double latitude, double longitude, int radius) {
         String url = "https://maps.googleapis.com/maps/api/place/textsearch/xml?"
-                + "query=" + keyword.replace(" ", "+") + "&key=" + API_KEY ;
+                + "query=" + keyword.replace(" ", "+") + "&key=" + API_KEY;
         if (latitude != -1 && longitude != -1 && radius != -1)
             url += "&location=" + latitude + "," + longitude + "&radius=" + radius;
         if (opennow)
@@ -167,7 +163,7 @@ public class GooglePlaceSearch {
             url += "&language=" + language.toLowerCase(Locale.getDefault());
         if (isLogging)
             Log.i("GooglePlace", "URL : " + url);
-        new RequestTask().execute(new String[]{url});
+        new RequestTask().execute(url);
     }
 
     /**
@@ -203,7 +199,7 @@ public class GooglePlaceSearch {
             , String type, String language, boolean opennow, String keyword) {
         String url = "https://maps.googleapis.com/maps/api/place/search/xml?"
                 + "location=" + latitude + "," + longitude + "&radius=" + radius
-                + "&key=" + API_KEY ;
+                + "&key=" + API_KEY;
         if (!type.equals(""))
             url += "&types=" + type.toLowerCase(Locale.getDefault());
         if (opennow)
@@ -214,105 +210,7 @@ public class GooglePlaceSearch {
             url += "&language=" + language.toLowerCase(Locale.getDefault());
         if (isLogging)
             Log.i("GooglePlace", "URL : " + url);
-        new RequestTask().execute(new String[]{url});
-    }
-
-    /**
-     * ************************************************************************
-     */
-
-    
-    private class RequestTask extends AsyncTask<String, Void, ArrayList<ContentValues>> {
-        String status = "";
-        Document doc = null;
-
-        protected ArrayList<ContentValues> doInBackground(String... url) {
-            try {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpContext localContext = new BasicHttpContext();
-                HttpPost httpPost = new HttpPost(url[0]);
-                HttpResponse response = httpClient.execute(httpPost, localContext);
-                InputStream in = response.getEntity().getContent();
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                doc = builder.parse(in);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            }
-
-            if (doc != null) {
-                status = getStatus(doc);
-
-                if (status.equals(STATUS_OK)) {
-                    ArrayList<ContentValues> arr_cv = new ArrayList<ContentValues>();
-                    NodeList nl1 = doc.getElementsByTagName("result");
-                    for (int i = 0; i < nl1.getLength(); i++) {
-                        ContentValues cv = new ContentValues();
-                        Node node = nl1.item(i);
-                        NodeList nl2 = node.getChildNodes();
-                        node = nl2.item(getNodeIndex(nl2, "place_id"));
-                        cv.put("place_id", node.getTextContent());
-
-                        String place_id = node.getTextContent();
-                        String ref_url = "https://maps.googleapis.com/maps/api/place/details/xml?"
-                                + "place_id=" + place_id + "&key=" + API_KEY ;
-
-                        try {
-                            HttpClient httpClient = new DefaultHttpClient();
-                            HttpContext localContext = new BasicHttpContext();
-                            HttpPost httpPost = new HttpPost(ref_url);
-                            HttpResponse response = httpClient.execute(httpPost, localContext);
-                            InputStream in = response.getEntity().getContent();
-                            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                            cv = getReferenceData(cv, builder.parse(in));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        try {
-                            node = nl2.item(getNodeIndex(nl2, "opening_hours"));
-                            NodeList nl3 = node.getChildNodes();
-                            node = nl3.item(getNodeIndex(nl3, "open_now"));
-                            ;
-                            cv.put(PLACE_OPENNOW, node.getTextContent());
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            cv.put(PLACE_OPENNOW, "");
-                        }
-
-                        try {
-                            node = nl2.item(getNodeIndex(nl2, "photo"));
-                            NodeList nl3 = node.getChildNodes();
-                            node = nl3.item(getNodeIndex(nl3, "photo_reference"));
-                            ;
-                            cv.put(PLACE_PHOTO, node.getTextContent());
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            cv.put(PLACE_PHOTO, "");
-                        }
-                        arr_cv.add(cv);
-                    }
-                    return arr_cv;
-                }
-                return null;
-            }
-            return null;
-        }
-
-        protected void onPostExecute(ArrayList<ContentValues> arr_cv) {
-            super.onPostExecute(arr_cv);
-
-            if (mPlaceResponseListener != null)
-                mPlaceResponseListener.onResponse(status, arr_cv, doc);
-        }
-
-        private String getStatus(Document doc) {
-            NodeList nl1 = doc.getElementsByTagName("PlaceSearchResponse");
-            NodeList nl2 = nl1.item(0).getChildNodes();
-            Node node = nl2.item(getNodeIndex(nl2, "status"));
-            return node.getTextContent();
-        }
+        new RequestTask().execute(url);
     }
 
     private ContentValues getReferenceData(ContentValues cv, Document doc) {
@@ -373,7 +271,123 @@ public class GooglePlaceSearch {
         if (isLogging)
             Log.i("GooglePlace", "URL : " + url);
         BitmapRequest br = new BitmapRequest(listener, url, tag);
-        new BitmapTask().execute(new BitmapRequest[]{br});
+        new BitmapTask().execute(br);
+    }
+
+    private int getNodeIndex(NodeList nl, String nodename) {
+        for (int i = 0; i < nl.getLength(); i++) {
+            if (nl.item(i).getNodeName().equals(nodename))
+                return i;
+        }
+        return -1;
+    }
+
+    public void setOnPlaceResponseListener(OnPlaceResponseListener listener) {
+        mPlaceResponseListener = listener;
+    }
+
+    public interface OnPlaceResponseListener {
+        void onResponse(String status, ArrayList<ContentValues> arr_data, Document doc);
+    }
+
+    public interface OnBitmapResponseListener {
+        void onResponse(Bitmap bm, String tag);
+    }
+
+    /**
+     * ************************************************************************
+     */
+
+
+    private class RequestTask extends AsyncTask<String, Void, ArrayList<ContentValues>> {
+        String status = "";
+        Document doc = null;
+
+        protected ArrayList<ContentValues> doInBackground(String... url) {
+            try {
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpContext localContext = new BasicHttpContext();
+                HttpPost httpPost = new HttpPost(url[0]);
+                HttpResponse response = httpClient.execute(httpPost, localContext);
+                InputStream in = response.getEntity().getContent();
+                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                doc = builder.parse(in);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            }
+
+            if (doc != null) {
+                status = getStatus(doc);
+
+                if (status.equals(STATUS_OK)) {
+                    ArrayList<ContentValues> arr_cv = new ArrayList<ContentValues>();
+                    NodeList nl1 = doc.getElementsByTagName("result");
+                    for (int i = 0; i < nl1.getLength(); i++) {
+                        ContentValues cv = new ContentValues();
+                        Node node = nl1.item(i);
+                        NodeList nl2 = node.getChildNodes();
+                        node = nl2.item(getNodeIndex(nl2, "place_id"));
+                        cv.put("place_id", node.getTextContent());
+
+                        String place_id = node.getTextContent();
+                        String ref_url = "https://maps.googleapis.com/maps/api/place/details/xml?"
+                                + "place_id=" + place_id + "&key=" + API_KEY;
+
+                        try {
+                            HttpClient httpClient = new DefaultHttpClient();
+                            HttpContext localContext = new BasicHttpContext();
+                            HttpPost httpPost = new HttpPost(ref_url);
+                            HttpResponse response = httpClient.execute(httpPost, localContext);
+                            InputStream in = response.getEntity().getContent();
+                            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                            cv = getReferenceData(cv, builder.parse(in));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            node = nl2.item(getNodeIndex(nl2, "opening_hours"));
+                            NodeList nl3 = node.getChildNodes();
+                            node = nl3.item(getNodeIndex(nl3, "open_now"));
+                            cv.put(PLACE_OPENNOW, node.getTextContent());
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            cv.put(PLACE_OPENNOW, "");
+                        }
+
+                        try {
+                            node = nl2.item(getNodeIndex(nl2, "photo"));
+                            NodeList nl3 = node.getChildNodes();
+                            node = nl3.item(getNodeIndex(nl3, "photo_reference"));
+                            cv.put(PLACE_PHOTO, node.getTextContent());
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            cv.put(PLACE_PHOTO, "");
+                        }
+                        arr_cv.add(cv);
+                    }
+                    return arr_cv;
+                }
+                return null;
+            }
+            return null;
+        }
+
+        protected void onPostExecute(ArrayList<ContentValues> arr_cv) {
+            super.onPostExecute(arr_cv);
+
+            if (mPlaceResponseListener != null)
+                mPlaceResponseListener.onResponse(status, arr_cv, doc);
+        }
+
+        private String getStatus(Document doc) {
+            NodeList nl1 = doc.getElementsByTagName("PlaceSearchResponse");
+            NodeList nl2 = nl1.item(0).getChildNodes();
+            Node node = nl2.item(getNodeIndex(nl2, "status"));
+            return node.getTextContent();
+        }
     }
 
     private class BitmapTask extends AsyncTask<BitmapRequest, Void, Bitmap> {
@@ -406,25 +420,5 @@ public class GooglePlaceSearch {
             if (br.getListener() != null)
                 br.getListener().onResponse(bm, br.getTag());
         }
-    }
-
-    private int getNodeIndex(NodeList nl, String nodename) {
-        for (int i = 0; i < nl.getLength(); i++) {
-            if (nl.item(i).getNodeName().equals(nodename))
-                return i;
-        }
-        return -1;
-    }
-
-    public interface OnPlaceResponseListener {
-        public void onResponse(String status, ArrayList<ContentValues> arr_data, Document doc);
-    }
-
-    public void setOnPlaceResponseListener(OnPlaceResponseListener listener) {
-        mPlaceResponseListener = listener;
-    }
-
-    public interface OnBitmapResponseListener {
-        public void onResponse(Bitmap bm, String tag);
     }
 }

@@ -12,7 +12,8 @@ public class PickleContract {
     public static final String AUTHORITY = Utility.CONTENT_AUTHORITY;
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
-
+    public static final String PATH_BOAT = "boats";
+    public static final String PATH_STOP = "stops";
 
     public static final class StopEntry implements BaseColumns {
 
@@ -21,24 +22,14 @@ public class PickleContract {
 
         public static final String CONTENT_ITEM_TYPE =
                 "vnd.android.cursor.item/" + AUTHORITY + "/" + PATH_STOP;
-
-        public static Uri buildZoneUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
         public static final String TABLE_NAME = "stop";
-
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_STOP).build();
-
         public static final String KEY_ZONE_SETTING = "zone_setting";
         public static final String KEY_NAME = "name";
         public static final String KEY_STOP_NUMBER = "stop_number";
         public static final String KEY_LATLNG = "latlng";
         public static final String KEY_NEXT_BOAT = "next_boat";
         public static final String KEY_EST_ARRIVAL_TIME = "est_arrival";
-
-
-
         public static final String[] STOP_KEYS = {
                 StopEntry.KEY_ZONE_SETTING,
                 StopEntry.KEY_NAME,
@@ -48,14 +39,17 @@ public class PickleContract {
                 StopEntry.KEY_EST_ARRIVAL_TIME,
 
         };
-
         public static final int COL_NUM_ID = 0;
         public static final int COL_NUM_ZONE_SETTING = 1;
-        public static final int COL_NUM_NAME = 2;    ;
+        public static final int COL_NUM_NAME = 2;
         public static final int COL_NUM_STOP_NUMBER = 3;
         public static final int COL_NUM_LATLNG = 4;
         public static final int COL_NUM_NEXT_ARRIVAL_BOAT = 5;
         public static final int COL_NUM_NEXT_ARRIVAL_TIME = 6;
+
+        public static Uri buildZoneUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
 
         public static Uri buildBoatByZoneUri(String zoneSetting) {
 
@@ -64,10 +58,6 @@ public class PickleContract {
 
 
     }
-
-    public static final String PATH_BOAT = "boats";
-    public static final String PATH_STOP = "stops";
-
 
     public static final class BoatEntry implements BaseColumns {
 
@@ -105,7 +95,7 @@ public class PickleContract {
         public static final int COL_NUM_ZONE_SETTING = 2;
         public static final int COL_NUM_LAST_STOP = 3;
         public static final int COL_NUM_NEXT_STOP = 4;
-        public static final int COL_NUM_STATUS  = 5;
+        public static final int COL_NUM_STATUS = 5;
 
         public static final String CONTENT_TYPE =
                 "vnd.android.cursor.dir/" + AUTHORITY + "/" + PATH_BOAT;
@@ -126,9 +116,7 @@ public class PickleContract {
         }
 
 
-
     }
-
 
 
 }

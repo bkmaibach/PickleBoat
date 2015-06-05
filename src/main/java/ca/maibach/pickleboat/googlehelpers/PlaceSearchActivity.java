@@ -26,21 +26,18 @@ import ca.maibach.pickleboat.R;
 
 public abstract class PlaceSearchActivity extends ActionBarActivity implements
 
-         LoaderManager.LoaderCallbacks<Cursor>,
+        LoaderManager.LoaderCallbacks<Cursor>,
         SearchView.OnClickListener,
         SearchView.OnCloseListener {
 
     private static String TAG = "PickleBoat: " + "MainActivity";
-
-
-    private SearchView mSearchView;
     static private LayoutParams sOpenParams;
     static private LayoutParams sClosedParams;
-
+    private SearchView mSearchView;
 
     public void setLocationBias(LatLng initialPosition) {
         //Log.d(TAG, "setLocationBias");
-        if(initialPosition == null){
+        if (initialPosition == null) {
             //Log.d(TAG, "initialPosition is null!");
         }
 
@@ -56,7 +53,7 @@ public abstract class PlaceSearchActivity extends ActionBarActivity implements
 
     }
 
-    protected void initLayout(RelativeLayout layout){
+    protected void initLayout(RelativeLayout layout) {
 
         LayoutTransition layoutTransition = new LayoutTransition();
         layoutTransition.enableTransitionType(LayoutTransition.CHANGING);
@@ -177,8 +174,7 @@ public abstract class PlaceSearchActivity extends ActionBarActivity implements
             String description = c.getString(0);
             //todo: make this an interface
             onDetailsLoaded(position, description);
-        }
-        else {
+        } else {
             Log.e(TAG, "cursor is empty!");
         }
 

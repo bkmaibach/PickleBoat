@@ -105,6 +105,70 @@ public class GoogleDirection {
     private boolean isAnimated = false;
 
     private Context mContext = null;
+    private Runnable r = new Runnable() {
+        public void run() {
+
+            animateMarkerPosition = getNewPosition(animateMarkerPosition, endPosition);
+
+            if (drawMarker)
+                animateMarker.setPosition(animateMarkerPosition);
+
+
+            if (drawLine) {
+                List<LatLng> points = animateLine.getPoints();
+                points.add(animateMarkerPosition);
+                animateLine.setPoints(points);
+            }
+
+            if ((animateMarkerPosition.latitude == endPosition.latitude
+                    && animateMarkerPosition.longitude == endPosition.longitude)) {
+                if (step == animatePositionList.size() - 2) {
+                    isAnimated = false;
+                    totalAnimateDistance = 0;
+                    if (mAnimateListener != null)
+                        mAnimateListener.onFinish();
+                } else {
+                    step++;
+                    beginPosition = animatePositionList.get(step);
+                    endPosition = animatePositionList.get(step + 1);
+                    animateMarkerPosition = beginPosition;
+
+                    if (flatMarker && step + 3 < animatePositionList.size() - 1) {
+                        float rotation = getBearing(animateMarkerPosition, animatePositionList.get(step + 3)) + 180;
+                        animateMarker.setRotation(rotation);
+                    }
+
+                    if (mAnimateListener != null)
+                        mAnimateListener.onProgress(step, animatePositionList.size());
+                }
+            }
+
+            if (cameraLock && (totalAnimateDistance > animateCamera || !isAnimated)) {
+                totalAnimateDistance = 0;
+                float bearing = getBearing(beginPosition, endPosition);
+                CameraPosition.Builder cameraBuilder = new CameraPosition.Builder()
+                        .target(animateMarkerPosition).bearing(bearing);
+
+                if (isCameraTilt)
+                    cameraBuilder.tilt(90);
+                else
+                    cameraBuilder.tilt(gm.getCameraPosition().tilt);
+
+                if (isCameraZoom)
+                    cameraBuilder.zoom(zoom);
+                else
+                    cameraBuilder.zoom(gm.getCameraPosition().zoom);
+
+                CameraPosition cameraPosition = cameraBuilder.build();
+                gm.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            }
+
+            if (isAnimated) {
+                new Handler().postDelayed(r, animateSpeed);
+            }
+        }
+    };
 
     public GoogleDirection(Context context) {
         mContext = context;
@@ -118,7 +182,7 @@ public class GoogleDirection {
 
         if (isLogging)
             Log.i("GoogleDirection", "URL : " + url);
-        new RequestTask().execute(new String[]{url});
+        new RequestTask().execute(url);
         return url;
     }
 
@@ -507,70 +571,7 @@ public class GoogleDirection {
         else if (begin.latitude < end.latitude && begin.longitude >= end.longitude)
             return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 270);
         return -1;
-    }    private Runnable r = new Runnable() {
-        public void run() {
-
-            animateMarkerPosition = getNewPosition(animateMarkerPosition, endPosition);
-
-            if (drawMarker)
-                animateMarker.setPosition(animateMarkerPosition);
-
-
-            if (drawLine) {
-                List<LatLng> points = animateLine.getPoints();
-                points.add(animateMarkerPosition);
-                animateLine.setPoints(points);
-            }
-
-            if ((animateMarkerPosition.latitude == endPosition.latitude
-                    && animateMarkerPosition.longitude == endPosition.longitude)) {
-                if (step == animatePositionList.size() - 2) {
-                    isAnimated = false;
-                    totalAnimateDistance = 0;
-                    if (mAnimateListener != null)
-                        mAnimateListener.onFinish();
-                } else {
-                    step++;
-                    beginPosition = animatePositionList.get(step);
-                    endPosition = animatePositionList.get(step + 1);
-                    animateMarkerPosition = beginPosition;
-
-                    if (flatMarker && step + 3 < animatePositionList.size() - 1) {
-                        float rotation = getBearing(animateMarkerPosition, animatePositionList.get(step + 3)) + 180;
-                        animateMarker.setRotation(rotation);
-                    }
-
-                    if (mAnimateListener != null)
-                        mAnimateListener.onProgress(step, animatePositionList.size());
-                }
-            }
-
-            if (cameraLock && (totalAnimateDistance > animateCamera || !isAnimated)) {
-                totalAnimateDistance = 0;
-                float bearing = getBearing(beginPosition, endPosition);
-                CameraPosition.Builder cameraBuilder = new CameraPosition.Builder()
-                        .target(animateMarkerPosition).bearing(bearing);
-
-                if (isCameraTilt)
-                    cameraBuilder.tilt(90);
-                else
-                    cameraBuilder.tilt(gm.getCameraPosition().tilt);
-
-                if (isCameraZoom)
-                    cameraBuilder.zoom(zoom);
-                else
-                    cameraBuilder.zoom(gm.getCameraPosition().zoom);
-
-                CameraPosition cameraPosition = cameraBuilder.build();
-                gm.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-            }
-
-            if (isAnimated) {
-                new Handler().postDelayed(r, animateSpeed);
-            }
-        }
-    };
+    }
 
     public void setCameraUpdateSpeed(int speed) {
         if (speed == SPEED_VERY_SLOW) {
@@ -607,15 +608,15 @@ public class GoogleDirection {
     }
 
     public interface OnDirectionResponseListener {
-        public void onResponse(String status, Document doc, GoogleDirection gd);
+        void onResponse(String status, Document doc, GoogleDirection gd);
     }
 
     public interface OnAnimateListener {
-        public void onFinish();
+        void onFinish();
 
-        public void onStart();
+        void onStart();
 
-        public void onProgress(int progress, int total);
+        void onProgress(int progress, int total);
     }
 
     private class RequestTask extends AsyncTask<String, Void, Document> {

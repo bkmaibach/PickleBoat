@@ -24,17 +24,13 @@ import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
  * Created by keith on 21/03/15.
  */
 public class Authenticator extends AbstractAccountAuthenticator {
-    private static final String TAG = "PickleBoat: " + "Auth";
-
     public static final String ACCOUNT_TYPE = FirebaseHelper.ACCOUNT_TYPE;
-
     public static final String AUTHTOKEN_TYPE_KEY = "authtoken_type_key";
     public static final String AUTHTOKEN_KEY = "authtoken_key";
     public static final String EXPIRY_KEY = "expiry_key";
     public static final String UID_KEY = "uid_key";
-
     public static final String FIREBASE_URL = FirebaseHelper.FIREBASE_URL;
-
+    private static final String TAG = "PickleBoat: " + "Auth";
     private final Context mContext;
 
 
@@ -45,16 +41,93 @@ public class Authenticator extends AbstractAccountAuthenticator {
     }
 
 
-
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
         try {
             //FirebaseHelper.getFirebase().createUser(email, pass, new ResultHandler(response));
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    @Override
+    public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account,
+                               String authTokenType, Bundle options) throws NetworkErrorException {
+        Log.d(TAG, "getAuthToken");
+
+        final AccountManager am = AccountManager.get(mContext);
+        String authToken = am.peekAuthToken(account, authTokenType);
+
+        if (TextUtils.isEmpty(authToken)) {
+
+            switch (authTokenType) {
+                case FirebaseHelper.GUEST_AUTHTOKEN_TYPE:
+
+                    try {
+
+                        firebase.authAnonymously(
+                                new AuthResultHandler("anonymous", response));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                case FirebaseHelper.CAPTAIN_AUTHTOKEN_TYPE:
+                case FirebaseHelper.ADMIN_AUTHTOKEN_TYPE:
+
+                    final String password = am.getPassword(account);
+                    Log.d(TAG, "> re-authenticating with the existing password");
+                    try {
+                        FirebaseHelper.getFirebase().authAnonymously(
+                                new AuthResultHandler("password", response));
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+            }
+        } else {
+            Log.d("TAG", "> peekAuthToken returned - " + authToken);
+
+            Bundle bundle = new Bundle();
+            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, ACCOUNT_TYPE);
+            bundle.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+            bundle.putString(AccountManager.KEY_AUTH_TOKEN_LABEL, getAuthTokenLabel(authTokenType));
+
+
+        }
+        return null;
+    }
+
+    @Override
+    public String getAuthTokenLabel(String s) {
+        return s;
+    }
+
+    @Override
+    public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
+        //Log.d(TAG, "hasFeatures");
+        final Bundle result = new Bundle();
+        result.putBoolean(KEY_BOOLEAN_RESULT, false);
+        return result;
+    }
+
+    @Override
+    public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
+        return null;
+    }
+
+    @Override
+    public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) throws NetworkErrorException {
+        return null;
+    }
+
+    @Override
+    public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
+        return null;
+    }
+
     private class ResultHandler implements Firebase.ResultHandler {
 
         private final AccountAuthenticatorResponse mResponse;
@@ -76,55 +149,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
         }
     }
 
-
-
-    @Override
-    public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account,
-                               String authTokenType, Bundle options) throws NetworkErrorException {
-        Log.d(TAG, "getAuthToken");
-
-        final AccountManager am = AccountManager.get(mContext);
-        String authToken = am.peekAuthToken(account, authTokenType);
-
-        if (TextUtils.isEmpty(authToken)) {
-
-            switch(authTokenType){
-                case FirebaseHelper.GUEST_AUTHTOKEN_TYPE:
-
-                    try {
-
-                        firebase.authAnonymously(
-                                new AuthResultHandler("anonymous", response));
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-
-                case FirebaseHelper.CAPTAIN_AUTHTOKEN_TYPE: case FirebaseHelper.ADMIN_AUTHTOKEN_TYPE:
-
-                        final String password = am.getPassword(account);
-                        Log.d(TAG, "> re-authenticating with the existing password");
-                        try {
-                            FirebaseHelper.getFirebase().authAnonymously(
-                                    new AuthResultHandler("password", response));
-
-                        } catch (Exception e) {
-                                e.printStackTrace();
-                        }
-
-                }
-        }else{
-            Log.d("TAG", "> peekAuthToken returned - " + authToken);
-
-            Bundle bundle = new Bundle();
-            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, ACCOUNT_TYPE);
-            bundle.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-            bundle.putString(AccountManager.KEY_AUTH_TOKEN_LABEL, getAuthTokenLabel(authTokenType));
-
-
-        }
-        return null;
-    }
     private class AuthResultHandler implements Firebase.AuthResultHandler {
 
         private final String provider;
@@ -151,38 +175,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
             Log.d(TAG, provider + " auth error: " + firebaseError.toString());
             mResponse.onError(firebaseError.getCode(), firebaseError.getMessage());
         }
-    }
-
-
-
-
-    @Override
-    public String getAuthTokenLabel(String s){
-        return s;
-    }
-
-    @Override
-    public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
-        //Log.d(TAG, "hasFeatures");
-        final Bundle result = new Bundle();
-        result.putBoolean(KEY_BOOLEAN_RESULT, false);
-        return result;
-    }
-
-
-    @Override
-    public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
-        return null;
-    }
-
-    @Override
-    public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) throws NetworkErrorException {
-        return null;
-    }
-
-    @Override
-    public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
-        return null;
     }
 
 

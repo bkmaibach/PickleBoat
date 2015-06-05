@@ -19,7 +19,6 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,31 +27,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import ca.maibach.pickleboat.Utility;
+import ca.maibach.pickleboat.authentication.FirebaseHelper;
 import ca.maibach.pickleboat.data.PickleContract.StopEntry;
 
-import ca.maibach.pickleboat.authentication.FirebaseHelper;
-
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-    private static String TAG = "PickleBoat: " + "CaptainSyncAdapter";
-
     public static final String AUTHORITY = Utility.CONTENT_AUTHORITY;
-
-    private final String ZONE_KEY = "zones";
-    private final String STOPS_KEY = "stops";
-
-    int MOCK_TIMESTAMP = 1428796738;
-
-
-
-    private AccountManager mAccountManager;
-    private Context mContext = null;
-
     private static final String zone_path = "zones";
     private static final String stops_path = "stops";
+    private static String TAG = "PickleBoat: " + "CaptainSyncAdapter";
+    private final String ZONE_KEY = "zones";
+    private final String STOPS_KEY = "stops";
+    int MOCK_TIMESTAMP = 1428796738;
+    private AccountManager mAccountManager;
+    private Context mContext = null;
 
 
     public SyncAdapter(Context context, boolean autoInitialize) {
@@ -64,11 +54,52 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         mAccountManager = AccountManager.get(context);
     }
 
+    public static boolean setAutoSyncOn(Account account) {
+        Log.d(TAG, "setAutoSyncOn");
+        if (!ContentResolver.getSyncAutomatically(account, AUTHORITY)) {
+            ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
+            return true;
+        } else {
+            Log.d(TAG, "...but was already on");
+            return false;
+        }
+    }
+
+    public static boolean setAutoSyncOff(Account account) {
+        Log.d(TAG, "setAutoSyncOff");
+        if (ContentResolver.getSyncAutomatically(account, AUTHORITY)) {
+            ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
+            return true;
+        } else {
+            Log.d(TAG, "...but was already off");
+            return false;
+        }
+    }
+
+    public static boolean enableSync(Account account) {
+        Log.d(TAG, "enableSync");
+        if (ContentResolver.getIsSyncable(account, AUTHORITY) != 1) {
+            ContentResolver.setIsSyncable(account, AUTHORITY, 1);
+            return true;
+        } else {
+            Log.d(TAG, "...but was already enabled");
+            return false;
+        }
+    }
+
+    public static boolean disableSync(Account account) {
+        Log.d(TAG, "disableSync");
+        if (ContentResolver.getIsSyncable(account, AUTHORITY) != 0) {
+            ContentResolver.setIsSyncable(account, AUTHORITY, 0);
+            return true;
+        } else {
+            Log.d(TAG, "...but was already disabled");
+            return false;
+        }
+    }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-
-
 
 
         try {
@@ -80,22 +111,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String zoneSetting = Utility.getZoneSetting(mContext);
 
 
-
             long zoneId;
 
             // First, check if the location with this city name exists in the db
-            try{
-            provider.delete(
-                    StopEntry.CONTENT_URI,
-                    null,
-                    null);
+            try {
+                provider.delete(
+                        StopEntry.CONTENT_URI,
+                        null,
+                        null);
 
 
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, "error in deleting database for refresh");
             }
 
-            try{
+            try {
                 ContentValues stopValues;
                 JSONObject stop;
 
@@ -104,7 +134,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 String latLng;
 
 
-                for(int i = 0; i < stops.length(); i++){
+                for (int i = 0; i < stops.length(); i++) {
                     stopValues = new ContentValues();
                     stop = stops.getJSONObject(i);
 
@@ -121,8 +151,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
 
 
-
-            }catch(JSONException e){
+            } catch (JSONException e) {
                 Log.e(TAG, "JSONException");
             }
 
@@ -139,7 +168,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-
     private String getStopJson(String authToken) {
         //todo: utilize authtoken in retriving drivers
         String jsonStr = null;
@@ -149,12 +177,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 
         //TODO: implement http server
-            final String zone_setting = Utility.getZoneSetting(mContext);
+        final String zone_setting = Utility.getZoneSetting(mContext);
 
-            Uri builtUri = Uri.parse(Utility.FIREBASE_BASE_URL).buildUpon()
-                    .appendPath(zone_path).appendPath(zone_setting)
-                    .appendPath(stops_path)
-                    .build();
+        Uri builtUri = Uri.parse(Utility.FIREBASE_BASE_URL).buildUpon()
+                .appendPath(zone_path).appendPath(zone_setting)
+                .appendPath(stops_path)
+                .build();
 
 
         Firebase ref = new Firebase(builtUri.toString());
@@ -165,6 +193,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             public void onDataChange(DataSnapshot snapshot) {
                 System.out.println(snapshot.getValue());
             }
+
             @Override
             public void onCancelled(FirebaseError firebaseError) {
                 System.out.println("The read failed: " + firebaseError.getMessage());
@@ -219,49 +248,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
         Log.v(TAG, "CaptainSyncAdapter > driver jsonStr = " + jsonStr);
         return jsonStr;
-    }
-
-    public static boolean setAutoSyncOn(Account account){
-        Log.d(TAG, "setAutoSyncOn");
-        if (!ContentResolver.getSyncAutomatically(account, AUTHORITY)){
-            ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
-            return true;
-        }else{
-            Log.d(TAG, "...but was already on");
-            return false;
-        }
-    }
-    public static boolean setAutoSyncOff(Account account){
-        Log.d(TAG, "setAutoSyncOff");
-        if (ContentResolver.getSyncAutomatically(account, AUTHORITY)){
-            ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
-            return true;
-        }else{
-            Log.d(TAG, "...but was already off");
-            return false;
-        }
-    }
-
-    public static boolean enableSync(Account account){
-        Log.d(TAG, "enableSync");
-        if (ContentResolver.getIsSyncable(account, AUTHORITY) != 1){
-            ContentResolver.setIsSyncable(account, AUTHORITY, 1);
-            return true;
-        }else{
-            Log.d(TAG, "...but was already enabled");
-            return false;
-        }
-    }
-
-    public static boolean disableSync(Account account){
-        Log.d(TAG, "disableSync");
-        if (ContentResolver.getIsSyncable(account, AUTHORITY) != 0){
-            ContentResolver.setIsSyncable(account, AUTHORITY, 0);
-            return true;
-        }else{
-            Log.d(TAG, "...but was already disabled");
-            return false;
-        }
     }
 
 }

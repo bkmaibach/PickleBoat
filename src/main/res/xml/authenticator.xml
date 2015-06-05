@@ -2,5 +2,5 @@
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="maibach.ca"
     android:icon="@drawable/ic_pedicab"
-    android:smallIcon="@drawable/ic_pedicab"
-    android:label="@string/app_name" />
+    android:label="@string/app_name"
+    android:smallIcon="@drawable/ic_pedicab" />

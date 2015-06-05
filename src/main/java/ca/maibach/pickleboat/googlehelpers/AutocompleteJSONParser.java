@@ -13,8 +13,10 @@ import java.util.List;
 public class AutocompleteJSONParser {
     private static String TAG = "PickleBoat: " + AutocompleteJSONParser.class.getSimpleName();
 
-    /** Receives a JSONObject and returns a list */
-    public List<HashMap<String,String>> parse(JSONObject jObject){
+    /**
+     * Receives a JSONObject and returns a list
+     */
+    public List<HashMap<String, String>> parse(JSONObject jObject) {
 
         JSONArray jPlaces = null;
         try {
@@ -29,16 +31,16 @@ public class AutocompleteJSONParser {
         return getPlaces(jPlaces);
     }
 
-    private List<HashMap<String, String>> getPlaces(JSONArray jPlaces){
+    private List<HashMap<String, String>> getPlaces(JSONArray jPlaces) {
         int placesCount = jPlaces.length();
-        List<HashMap<String, String>> placesList = new ArrayList<HashMap<String,String>>();
+        List<HashMap<String, String>> placesList = new ArrayList<HashMap<String, String>>();
         HashMap<String, String> place = null;
 
         /** Taking each place, parses and adds to list object */
-        for(int i=0; i<placesCount;i++){
+        for (int i = 0; i < placesCount; i++) {
             try {
                 /** Call getPlace with place JSON object to parse the place */
-                place = getPlace((JSONObject)jPlaces.get(i));
+                place = getPlace((JSONObject) jPlaces.get(i));
                 placesList.add(place);
 
             } catch (JSONException e) {
@@ -49,13 +51,15 @@ public class AutocompleteJSONParser {
         return placesList;
     }
 
-    /** Parsing the Place JSON object */
-    private HashMap<String, String> getPlace(JSONObject jPlace){
+    /**
+     * Parsing the Place JSON object
+     */
+    private HashMap<String, String> getPlace(JSONObject jPlace) {
 
         HashMap<String, String> place = new HashMap<String, String>();
 
-        String placeId="";
-        String description="";
+        String placeId = "";
+        String description = "";
 
         try {
 
@@ -64,7 +68,7 @@ public class AutocompleteJSONParser {
             Log.v(TAG, jPlace.getString("description"));
 
             place.put("description", description);
-            place.put("place_id",placeId);
+            place.put("place_id", placeId);
 
         } catch (JSONException e) {
             e.printStackTrace();

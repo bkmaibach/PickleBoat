@@ -26,38 +26,35 @@ import ca.maibach.pickleboat.googlehelpers.GoogleDirection;
  * Created by keith on 15/03/15.
  */
 public class Utility {
+    public static final String FIREBASE_BASE_URL = "https://h2otaxi.firebaseio.com/";
     private static final String TAG = "PickleBoat: " + "Utility";
-    private static Locale mLocale = Locale.CANADA;
-
     public static Context sContext;
 
     public static String CONTENT_AUTHORITY = "ca.maibach.pickleboat.PickleProvider";
 
     public static String PLACES_API_KEY = "AIzaSyAaq4JhND9dx6BKx67lAmlRxJuA4-MHeN4";
+    private static Locale mLocale = Locale.CANADA;
 
-    public static final String FIREBASE_BASE_URL = "https://h2otaxi.firebaseio.com/";
-
-
-    public static void setAndroidContext(Context context){
+    public static void setAndroidContext(Context context) {
         sContext = context;
 
-        if(CONTENT_AUTHORITY != sContext.getString(R.string.pickleboat_content_authority) ||
+        if (CONTENT_AUTHORITY != sContext.getString(R.string.pickleboat_content_authority) ||
                 PLACES_API_KEY != sContext.getString(R.string.places_api_key) ||
-                FIREBASE_BASE_URL != sContext.getString(R.string.firebase_url) ){
+                FIREBASE_BASE_URL != sContext.getString(R.string.firebase_url)) {
             throw new IllegalStateException("Utility constants improperly initialized");
         }
 
     }
 
-    public static String getString(int resId){
+    public static String getString(int resId) {
         return sContext.getString(resId);
     }
 
-    public static Context getApplicationContext(){
+    public static Context getApplicationContext() {
         return sContext;
     }
 
-    public static void quickToast(String msg){
+    public static void quickToast(String msg) {
 
         Toast toast = Toast.makeText(sContext, msg, Toast.LENGTH_SHORT);
         toast.show();
@@ -233,7 +230,7 @@ public class Utility {
         String latitude = Double.toString(pickup.latitude);
         String longitude = Double.toString(pickup.longitude);
 
-        return latitude+","+longitude;
+        return latitude + "," + longitude;
     }
 
 

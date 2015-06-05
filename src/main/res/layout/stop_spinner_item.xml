@@ -4,71 +4,70 @@
     android:id="@+id/driver_spinner_item_layout"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/abc_list_selector_holo_dark"
     android:baselineAligned="true"
-    tools:context="ca.maibach.pickleboat.app.SearchMapActivity"
-    android:background="@drawable/abc_list_selector_holo_dark">
+    tools:context="ca.maibach.pickleboat.app.SearchMapActivity">
 
 
     <TextView
         android:id="@+id/stop_address_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/driver_ratingbar"
+        android:layout_marginLeft="6dp"
+        android:layout_toEndOf="@+id/textView3"
         android:maxLines="1"
         android:text="123456"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-        android:layout_marginLeft="6dp"
-        android:layout_below="@+id/driver_ratingbar"
-        android:layout_toEndOf="@+id/textView3" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="FirstName"
-            android:id="@+id/stop_name_textview"
-            android:textColor="@color/abc_primary_text_material_light" />
-
-
-
-        <RatingBar
-            android:id="@+id/driver_ratingbar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:stepSize=".25"
-            android:layout_below="@+id/stop_name_textview"
-            android:layout_alignParentStart="true" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
 
     <TextView
+        android:id="@+id/stop_name_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/license_no"
+        android:text="FirstName"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/abc_primary_text_material_light" />
+
+
+    <RatingBar
+        android:id="@+id/driver_ratingbar"
+        style="?android:attr/ratingBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/stop_name_textview"
+        android:layout_gravity="bottom"
+        android:stepSize=".25" />
+
+    <TextView
         android:id="@+id/textView3"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/driver_ratingbar"
-        android:layout_alignParentStart="true" />
+        android:text="@string/license_no"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
 
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/distance_units_metric"
         android:id="@+id/distance_units_textview"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="8dp" />
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/arrival_textview"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/distance_units_textview"
+        android:layout_marginRight="8dp"
+        android:text="@string/distance_units_metric"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+
+    <TextView
+        android:id="@+id/arrival_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginRight="4dp"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-        android:text="22" />
+        android:layout_toLeftOf="@+id/distance_units_textview"
+        android:text="22"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
 
 
 </RelativeLayout>

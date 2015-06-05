@@ -32,7 +32,7 @@ import ca.maibach.pickleboat.googlehelpers.GoogleDirection;
  */
 public class PickleMapFragment extends Fragment implements
         FusedLocator.LocationSourceCallbacks,
-        GoogleMap.OnMapClickListener{
+        GoogleMap.OnMapClickListener {
     private static String TAG = "PickleBoat: " + "PickleMapFragment";
     //Member classes
     protected GoogleMap mGoogleMap;
@@ -60,7 +60,7 @@ public class PickleMapFragment extends Fragment implements
         Log.d(TAG, "onCreateView");
 
 
-    return inflater.inflate(R.layout.fragment_pickup, container, false);
+        return inflater.inflate(R.layout.fragment_pickup, container, false);
 
 
     }
@@ -71,7 +71,7 @@ public class PickleMapFragment extends Fragment implements
         Log.d(TAG, "onActivityCreated");
         FragmentManager fm = getChildFragmentManager();
         mMapFragment = ((SupportMapFragment) fm.findFragmentById(R.id.map_container));
-        if(mMapFragment == null){
+        if (mMapFragment == null) {
             mMapFragment = SupportMapFragment.newInstance();
             fm.beginTransaction().replace(R.id.map_container, mMapFragment).commit();
         }
@@ -79,7 +79,6 @@ public class PickleMapFragment extends Fragment implements
         mFusedLocator = new FusedLocator(getActivity());
 
     }
-
 
 
     @Override
@@ -102,7 +101,7 @@ public class PickleMapFragment extends Fragment implements
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if(previewedPickup != null){
+        if (previewedPickup != null) {
             outState.putString("saved_pickup_preview", Utility.latLngToStringParam(previewedPickup));
             outState.putString("saved_preview_description", previewDescription);
         }
@@ -112,7 +111,7 @@ public class PickleMapFragment extends Fragment implements
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
 
         }
     }
@@ -123,7 +122,7 @@ public class PickleMapFragment extends Fragment implements
         if (mGoogleMap == null) {
             mGoogleMap = mMapFragment.getMap();
 
-            if(mGoogleMap != null){
+            if (mGoogleMap != null) {
                 setUpMap();
             }
         }
@@ -144,10 +143,10 @@ public class PickleMapFragment extends Fragment implements
     public void onLocationSourceReady(LatLng position) {
         Log.d(TAG, "onLocationSourceReady");
 
-        if(previewedPickup == null){
+        if (previewedPickup == null) {
             setUpMapIfNeeded();
 
-            if(mListener != null){
+            if (mListener != null) {
                 mListener.onInitialized(position, null);
             }
 
@@ -155,13 +154,13 @@ public class PickleMapFragment extends Fragment implements
     }
 
     public void drawPickupRoute(LatLng toPickup) {
-        if(previewedPickup != null){
+        if (previewedPickup != null) {
             GoogleDirection gDirection = new GoogleDirection(getActivity());
             gDirection.request(toPickup, previewedPickup, GoogleDirection.MODE_BICYCLING);
             gDirection.setOnDirectionResponseListener(new GoogleDirection.OnDirectionResponseListener() {
                 @Override
                 public void onResponse(String status, Document doc, GoogleDirection gd) {
-                    if(mPolyLine != null) {
+                    if (mPolyLine != null) {
                         mPolyLine.remove();
                     }
                     mPolyLine = mGoogleMap.addPolyline(gd.getPolyline(doc, 1, Color.DKGRAY));
@@ -171,7 +170,65 @@ public class PickleMapFragment extends Fragment implements
         }
 
 
+    }
 
+    @Override
+    public void onMapClick(LatLng latLng) {
+        //todo: implements nearby search
+        String description = Utility.getAddress(latLng, getActivity()).getThoroughfare();
+
+        if (mListener != null) {
+            mListener.onPickupDetailsReceived(latLng, description);
+        }
+    }
+
+    public void previewPickup(LatLng pickup, String description) {
+        Log.d(TAG, "previewPickup: mPickup = " + pickup.toString());
+
+        previewedPickup = pickup;
+        previewDescription = description;
+        CameraUpdate cameraPosition = CameraUpdateFactory.newLatLngZoom(pickup, 12);
+        mGoogleMap.animateCamera(cameraPosition);
+
+        if (mPickupMarker == null) {
+            mPickupMarker = mGoogleMap.addMarker(new MarkerOptions()
+                    .title(getString(R.string.pickup_info_window_title))
+                    .position(pickup)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        }
+
+        mPickupMarker.setPosition(pickup);
+        mPickupMarker.setSnippet(description);
+        mPickupMarker.showInfoWindow();
+    }
+
+    public void markStop(LatLng coords, String name, int stopNumber) {
+        Log.d(TAG, "markStop");
+        MarkerOptions markerOptions = new MarkerOptions()
+                .title(name)
+                .snippet(Integer.toString(stopNumber))
+                .position(coords)
+                .flat(true)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+        mGoogleMap.addMarker(markerOptions);
+    }
+
+    private boolean isGooglePlayServicesAvailable() {
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
+        if (ConnectionResult.SUCCESS == status) {
+            return true;
+        } else {
+            GooglePlayServicesUtil.getErrorDialog(status, getActivity(), 0).show();
+            return false;
+        }
+    }
+
+    public boolean isConnected() {
+        return mFusedLocator.isConnected();
+    }
+
+    public void setPickupCallbacks(PickupCallbacks listener) {
+        mListener = listener;
     }
 
     private class PickupInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
@@ -181,6 +238,7 @@ public class PickleMapFragment extends Fragment implements
         public PickupInfoWindowAdapter() {
             view = LayoutInflater.from(getActivity()).inflate(R.layout.pickup_info_window, null);
         }
+
         @Override
         public View getInfoContents(Marker marker) {
 
@@ -190,6 +248,7 @@ public class PickleMapFragment extends Fragment implements
             }
             return null;
         }
+
         @Override
         public View getInfoWindow(final Marker marker) {
             mPickupMarker = marker;
@@ -214,67 +273,6 @@ public class PickleMapFragment extends Fragment implements
             return view;
         }
     }
-
-    @Override
-    public void onMapClick(LatLng latLng) {
-        //todo: implements nearby search
-        String description = Utility.getAddress(latLng, getActivity()).getThoroughfare();
-
-        if(mListener != null) {
-            mListener.onPickupDetailsReceived(latLng, description);
-        }
-    }
-
-    public void previewPickup(LatLng pickup, String description) {
-        Log.d(TAG, "previewPickup: mPickup = " + pickup.toString());
-
-        previewedPickup = pickup;
-        previewDescription = description;
-        CameraUpdate cameraPosition = CameraUpdateFactory.newLatLngZoom(pickup, 12);
-        mGoogleMap.animateCamera(cameraPosition);
-
-        if(mPickupMarker == null) {
-            mPickupMarker = mGoogleMap.addMarker(new MarkerOptions()
-                    .title(getString(R.string.pickup_info_window_title))
-                    .position(pickup)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-        }
-
-        mPickupMarker.setPosition(pickup);
-        mPickupMarker.setSnippet(description);
-        mPickupMarker.showInfoWindow();
-    }
-
-    public void markStop(LatLng coords, String name, int stopNumber){
-        Log.d(TAG, "markStop");
-        MarkerOptions markerOptions = new MarkerOptions()
-                .title(name)
-                .snippet(Integer.toString(stopNumber))
-                .position(coords)
-                .flat(true)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-        mGoogleMap.addMarker(markerOptions);
-    }
-
-    private boolean isGooglePlayServicesAvailable() {
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
-        if (ConnectionResult.SUCCESS == status) {
-            return true;
-        } else {
-            GooglePlayServicesUtil.getErrorDialog(status, getActivity(), 0).show();
-            return false;
-        }
-    }
-
-
-    public boolean isConnected(){
-        return mFusedLocator.isConnected();
-    }
-
-    public void setPickupCallbacks(PickupCallbacks listener){
-        mListener = listener;
-    }
-
 
 
 }

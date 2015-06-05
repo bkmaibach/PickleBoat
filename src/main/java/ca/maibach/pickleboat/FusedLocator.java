@@ -21,14 +21,12 @@ public class FusedLocator implements
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-        protected static String TAG = "PickleBoat: " + "FusedLocator";
-
     protected static final long INTERVAL = 1000 * 30;
     protected static final long FASTEST_INTERVAL = 1000 * 5;
     protected static final long ONE_MIN = 1000 * 60;
     protected static final long REFRESH_TIME = ONE_MIN * 5;
     protected static final float MINIMUM_ACCURACY = 50.0f;
-
+    protected static String TAG = "PickleBoat: " + "FusedLocator";
     protected LocationSourceCallbacks mListener;
     protected Context mContext;
 
@@ -43,9 +41,7 @@ public class FusedLocator implements
     }
 
 
-
-
-    public Location getLocation(){
+    public Location getLocation() {
         return mLocation;
     }
 
@@ -57,7 +53,7 @@ public class FusedLocator implements
         return latLng;
     }
 
-    public void getConnectedLocationSourceAsync(LocationSourceCallbacks listener)  {
+    public void getConnectedLocationSourceAsync(LocationSourceCallbacks listener) {
         Log.d(TAG, "getConnectedLocationSourceAsync");
 
         googleApiClient = new GoogleApiClient.Builder(mContext, this, this)
@@ -75,24 +71,22 @@ public class FusedLocator implements
 
 
     public Boolean isConnected() {
-        if(googleApiClient!= null){
+        if (googleApiClient != null) {
             return googleApiClient.isConnected();
-        }
-        else{
+        } else {
             return false;
         }
 
     }
 
-    public void disconnect(){
+    public void disconnect() {
         fusedLocationProviderApi.removeLocationUpdates(googleApiClient, this);
         googleApiClient.disconnect();
     }
 
 
     @Override
-    public void onConnected(Bundle bundle)
-    {
+    public void onConnected(Bundle bundle) {
         Log.d(TAG, "onConnected");
 
         Location currentLocation = fusedLocationProviderApi.getLastLocation(googleApiClient);
@@ -117,24 +111,22 @@ public class FusedLocator implements
         Log.e(TAG, "Connection failed!");
     }
 
-
-    public interface LocationSourceCallbacks {
-        public void onLocationSourceReady(LatLng position);
-    }
-
     @Override
     public void onLocationChanged(Location location) {
 
         mLocation = location;
     }
 
-    public LocationSource getLocationSourceIfReady(){
-        if(googleApiClient.isConnected()){
-            return (LocationSource)googleApiClient;
-        }
-        else{
+    public LocationSource getLocationSourceIfReady() {
+        if (googleApiClient.isConnected()) {
+            return (LocationSource) googleApiClient;
+        } else {
             return null;
         }
+    }
+
+    public interface LocationSourceCallbacks {
+        void onLocationSourceReady(LatLng position);
     }
 
 

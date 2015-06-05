@@ -5,13 +5,11 @@
 
 
     <ListPreference
-        android:key="@string/zone_setting_key"
-        android:title="@string/zone_setting_label"
         android:defaultValue="@string/zone_setting_default"
         android:entries="@array/zone_setting_entries"
-        android:entryValues="@array/pref_zones_values"/>
-
-
+        android:entryValues="@array/pref_zones_values"
+        android:key="@string/zone_setting_key"
+        android:title="@string/zone_setting_label" />
 
 
 </PreferenceScreen>

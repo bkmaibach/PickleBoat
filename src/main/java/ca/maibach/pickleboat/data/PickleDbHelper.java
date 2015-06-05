@@ -48,7 +48,6 @@ public class PickleDbHelper extends SQLiteOpenHelper {
                 "UNIQUE (" + PickleContract.BoatEntry.KEY_ZONE_SETTING + ", " + PickleContract.BoatEntry.KEY_BOAT_NUMBER + ") ON CONFLICT REPLACE" + " );";
 
 
-
         final String SQL_CREATE_ZONE_TABLE = "CREATE TABLE " + StopEntry.TABLE_NAME + " (" +
                 StopEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 StopEntry.KEY_ZONE_SETTING + " STRING NOT NULL, " +
@@ -56,8 +55,6 @@ public class PickleDbHelper extends SQLiteOpenHelper {
                 StopEntry.KEY_LATLNG + " STRING NOT NULL" +
                 StopEntry.KEY_NEXT_BOAT + "INTEGER" +
                 StopEntry.KEY_EST_ARRIVAL_TIME + " INTEGER";
-
-
 
 
         Log.v("SQL_CREATE_DRIVER_TABLE", SQL_CREATE_DRIVER_TABLE);

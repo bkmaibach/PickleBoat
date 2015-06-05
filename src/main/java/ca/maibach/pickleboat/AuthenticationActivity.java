@@ -7,8 +7,6 @@ import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.content.ContentResolver;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,9 +27,6 @@ public class AuthenticationActivity extends AccountAuthenticatorActivity {
 
     final String accountType = FirebaseHelper.ACCOUNT_TYPE;
     final String authType = FirebaseHelper.GUEST_AUTHTOKEN_TYPE;
-
-
-
 
 
     @Override
@@ -56,36 +51,6 @@ public class AuthenticationActivity extends AccountAuthenticatorActivity {
         });
 
 
-    }
-
-    private class LoadingScreenTask extends AsyncTask<Void, Void, Void>{
-        @Override
-        protected Void doInBackground(Void... params) {
-            final Account availableAccounts[] = AccountManager.get(AuthenticationActivity.this)
-                    .getAccountsByType(accountType);
-
-            if (availableAccounts.length == 0) {
-                getGuestAccess();
-
-            } else {
-                try {
-                    AccountManager.get(AuthenticationActivity.this).blockingGetAuthToken(availableAccounts[0], authType, true);
-                } catch (OperationCanceledException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (AuthenticatorException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            finish();
-        }
     }
 
     private void getGuestAccess() {
@@ -122,6 +87,36 @@ public class AuthenticationActivity extends AccountAuthenticatorActivity {
                         }
                     }
                 }, null);
+    }
+
+    private class LoadingScreenTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            final Account availableAccounts[] = AccountManager.get(AuthenticationActivity.this)
+                    .getAccountsByType(accountType);
+
+            if (availableAccounts.length == 0) {
+                getGuestAccess();
+
+            } else {
+                try {
+                    AccountManager.get(AuthenticationActivity.this).blockingGetAuthToken(availableAccounts[0], authType, true);
+                } catch (OperationCanceledException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (AuthenticatorException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            finish();
+        }
     }
 
 

@@ -17,6 +17,10 @@ public class StopAdapter extends CursorAdapter {
     private static final String TAG = "PickleBoat: " + "driverAdapter";
 
 
+    public StopAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
+    }
+
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
@@ -25,19 +29,11 @@ public class StopAdapter extends CursorAdapter {
         viewHolder.nameView.setText(cursor.getString(StopEntry.COL_NUM_NAME));
         viewHolder.numberView.setText(Integer.toString(cursor.getInt(StopEntry.COL_NUM_STOP_NUMBER)));
 
-        int currentTime = (int) (System.currentTimeMillis())/1000;
+        int currentTime = (int) (System.currentTimeMillis()) / 1000;
         int arrivalMinutes = cursor.getInt(StopEntry.COL_NUM_NEXT_ARRIVAL_TIME) - currentTime;
-        viewHolder.nameView.setText(Integer.toString(arrivalMinutes/60));
+        viewHolder.nameView.setText(Integer.toString(arrivalMinutes / 60));
 
     }
-
-
-    public StopAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
-    }
-
-
-
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -68,15 +64,11 @@ public class StopAdapter extends CursorAdapter {
     }
 
 
-
-
-
     @Override
     protected void onContentChanged() {
         super.onContentChanged();
 
     }
-
 
 
     public static class ViewHolder {
