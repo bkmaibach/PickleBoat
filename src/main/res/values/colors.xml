@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="grey">#ffC3C4C8</color>
+
+    <color name="vpc_blue">#ff0629B9</color>
+    <color name="vpc_yellow">#ffFDD001</color>
+
+    <color name="fancy_blue">#ff49ADE3</color>
+    <color name="fancy_black">#ff7f7f7f</color>
+
+
+</resources>

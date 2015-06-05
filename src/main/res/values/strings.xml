@@ -1,0 +1,69 @@
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
+    <string name="app_name">PickleBoat</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="login_label">Login</string>
+    <string name="signup_label">Sign up</string>
+    <string name="loading">Finding drivers nearby...</string>
+    <string name="your_driver">Touch to see available drivers</string>
+    <string name="pickup_title">Select your pickup location:</string>
+    <string name="my_location">Use current position</string>
+
+    <string name="title_activity_pickup">Victoria PickleBoat</string>
+    <string name="location_error">Error determining location</string>
+    <string name="see_more">see more</string>
+
+    <string name="action_search">Search</string>
+    <string name="action_mylocation">Use Current Location</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="search_hint">Search Places</string>
+    <string name="search_settings">Search Places</string>
+
+    <string name="pickup_info_window_title">SET PICKUP LOCATION</string>
+    <string name="book">BOOK</string>
+
+    <string name="email">Email Address</string>
+    <string name="password">Password</string>
+    <string name="submit">Sign in</string>
+    <string name="sign_up">New user?</string>
+
+    <string name="zone_setting_key">zone_setting</string>
+    <string name="zone_setting_label">Service Zone</string>
+    <string name="zone_setting_default">victoria_inner_harbour</string>
+
+
+    <string-array name="zone_setting_entries">
+        <item name="entry_victoria">victoria_inner_harbour</item>
+    </string-array>
+
+    <string-array name="pref_zones_values">
+        <item name="value_default">victoria_inner_harcour</item>
+    </string-array>
+
+    <string name="places_api_key">AIzaSyAaq4JhND9dx6BKx67lAmlRxJuA4-MHeN4</string>
+
+    <string name="pickleboat_content_authority">ca.maibach.pickleboat</string>
+
+
+    <string name="duration">Wait time:</string>
+    <string name="license_no">License #:</string>
+
+    <string name="distance_units_metric">m</string>
+
+    <string name="time_units">minutes</string>
+
+    <string name="spinner_prompt">Select an available driver...</string>
+
+    <string name="msg_auth_fail">Authorization failed</string>
+    <string name="msg_auth_success">Connection successful</string>
+
+    <string name="msg_signup_fail">Error in creating new account</string>
+    <string name="msg_signup_success">New account created successfully</string>
+
+    <string name="msg_session_expired">Your pickleboat session has expired</string>
+
+    <string name="firebase_url">https://h2otaxi.firebaseio.com/</string>
+
+
+
+</resources>

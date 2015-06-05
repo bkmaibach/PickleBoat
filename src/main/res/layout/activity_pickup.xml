@@ -1,0 +1,44 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pickup_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    tools:context=".PickupActivity"
+    android:background="@android:color/background_light">
+
+    <fragment
+        android:id="@+id/pickup_fragment"
+        android:name="ca.maibach.pickleboat.PickleMapFragment"
+        tools:context="ca.maibach.pickleboat.PickleMapFragment"
+        tools:ignore="MergeRootFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/stop_fragment"
+        android:layout_margin="0dp" />
+
+    <fragment
+        android:id="@+id/stop_fragment"
+        android:name="ca.maibach.pickleboat.StopFragment"
+        tools:context="ca.maibach.pickleboat.StopFragment"
+        android:layout_alignParentBottom="true"
+        tools:ignore="MergeRootFrame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <SearchView
+        android:id="@+id/location_searchview"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:background="@drawable/map_style_bg"
+        android:baselineAligned="false"
+        android:clickable="true"
+        android:iconifiedByDefault="true"
+        android:queryHint="@string/search_hint"
+        android:layout_gravity="right|top"
+        android:layout_marginRight="10dp"
+        android:layout_alignTop="@+id/pickup_fragment"
+        android:layout_alignEnd="@+id/pickup_fragment"
+        android:layout_marginTop="10dp" />
+
+</RelativeLayout>

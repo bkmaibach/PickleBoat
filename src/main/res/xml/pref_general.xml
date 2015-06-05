@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ListPreference
+        android:key="@string/zone_setting_key"
+        android:title="@string/zone_setting_label"
+        android:defaultValue="@string/zone_setting_default"
+        android:entries="@array/zone_setting_entries"
+        android:entryValues="@array/pref_zones_values"/>
+
+
+
+
+</PreferenceScreen>
